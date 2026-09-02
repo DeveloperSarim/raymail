@@ -179,45 +179,36 @@ sudo ./deploy/setup-tls.sh
 
 ```mermaid
 flowchart LR
-    subgraph Internet
-        MX["Sending MX"]
-        C["Outlook · Apple Mail<br/>Thunderbird · Mobile"]
-        B["Browser"]
-    end
-
-    subgraph Host["Your VPS"]
-        subgraph SW["Stalwart :25 :465 :587 :993"]
-            Q["MTA queue"]
-        end
-        W["RayMail web<br/>Next.js · 127.0.0.1:3880"]
-        DB[("SQLite<br/>telemetry")]
-        P["Reverse proxy :443"]
-    end
-
-    R["Smarthost relay :587"]
+    MX[Sending MX]
+    C[Outlook / Apple Mail / Thunderbird]
+    B[Browser]
+    P[Reverse proxy 443]
+    W[RayMail web - Next.js]
+    SW[Stalwart - 25 465 587 993]
+    DB[(SQLite telemetry)]
+    R[Smarthost relay 587]
 
     MX -->|inbound SMTP| SW
-    C -->|IMAP / SMTP| SW
-    B --> P --> W
+    C -->|IMAP and SMTP| SW
+    B --> P
+    P --> W
     W <-->|JMAP| SW
     W --> DB
-    Q -->|outbound| R --> MX
+    SW -->|outbound| R
+    R --> MX
 ```
 
 **Delivery pipeline** — a message only moves forward; `bounced` is terminal from anywhere.
 
 ```mermaid
-stateDiagram-v2
-    [*] --> queued
-    queued --> sent
-    sent --> delivered
-    delivered --> opened
-    opened --> clicked
-    queued --> bounced
-    sent --> bounced
-    delivered --> bounced
-    bounced --> [*]
-    clicked --> [*]
+flowchart LR
+    Q[queued] --> S[sent]
+    S --> D[delivered]
+    D --> O[opened]
+    O --> C[clicked]
+    Q --> X[bounced]
+    S --> X
+    D --> X
 ```
 
 ### Port map
@@ -373,16 +364,6 @@ Contributions are welcome — issues, features and documentation alike.
 <a href="https://github.com/DeveloperSarim/raymail/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/DeveloperSarim/raymail?style=for-the-badge&color=E8A33D&labelColor=0C0C0F"></a>
 <a href="https://github.com/DeveloperSarim/raymail/pulls"><img alt="Pull requests welcome" src="https://img.shields.io/badge/PRs-welcome-3FA981?style=for-the-badge&labelColor=0C0C0F"></a>
 <a href="https://github.com/DeveloperSarim/raymail/commits/main"><img alt="Last commit" src="https://img.shields.io/github/last-commit/DeveloperSarim/raymail?style=for-the-badge&color=5B9DD9&labelColor=0C0C0F"></a>
-</div>
-
----
-
-## 📈 Star history
-
-<div align="center">
-<a href="https://star-history.com/#DeveloperSarim/raymail&Date">
-  <img src="https://api.star-history.com/svg?repos=DeveloperSarim/raymail&type=Date&theme=dark" alt="Star history chart" width="600">
-</a>
 </div>
 
 ---
