@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
-# Issues the Let's Encrypt cert for mail.sarimtools.com and installs the TLS vhost.
+# Issues the Let's Encrypt certificate for the configured domain and installs
+# the TLS vhost.
 # Safety contract: never restarts Apache, never edits an existing vhost, and
 # aborts before touching anything if configtest fails.
 set -euo pipefail
 
-DOMAIN=mail.sarimtools.com
 HERE="$(cd "$(dirname "$0")" && pwd)"
+
+# The domain comes from .env. It used to be hardcoded, which meant a fresh
+# clone would try to issue a certificate for someone else's domain.
+ENV_FILE="${ENV_FILE:-$HERE/../.env}"
+[ -f "$ENV_FILE" ] || { echo "FAIL: $ENV_FILE not found - copy .env.example first"; exit 1; }
+DOMAIN="$(grep -E '^MAIL_HOSTNAME=' "$ENV_FILE" | cut -d= -f2- | tr -d '"'"'"'[:space:]')"
+[ -n "$DOMAIN" ] || { echo "FAIL: MAIL_HOSTNAME is not set in $ENV_FILE"; exit 1; }
 
 say(){ printf '\n\033[1m==> %s\033[0m\n' "$*"; }
 
@@ -33,7 +40,7 @@ fi
 
 say "Installing stage-1 HTTP vhost (ACME challenge)"
 mkdir -p /var/www/letsencrypt/.well-known/acme-challenge
-install -m 644 "$HERE/raymail-http.conf" /etc/apache2/sites-available/raymail.conf
+sed "s|@@DOMAIN@@|$DOMAIN|g" "$HERE/raymail-http.conf" > /etc/apache2/sites-available/raymail.conf
 a2ensite raymail >/dev/null
 apache2ctl configtest
 systemctl reload apache2     # graceful: existing connections are not dropped
@@ -44,10 +51,10 @@ certbot certonly --webroot -w /var/www/letsencrypt -d "$DOMAIN" \
   --non-interactive --agree-tos --register-unsafely-without-email --keep-until-expiring
 
 say "Installing stage-2 TLS vhost"
-install -m 644 "$HERE/raymail.conf" /etc/apache2/sites-available/raymail.conf
+sed "s|@@DOMAIN@@|$DOMAIN|g" "$HERE/raymail.conf" > /etc/apache2/sites-available/raymail.conf
 if ! apache2ctl configtest; then
   echo "FAIL: configtest rejected the TLS vhost — rolling back to stage 1"
-  install -m 644 "$HERE/raymail-http.conf" /etc/apache2/sites-available/raymail.conf
+  sed "s|@@DOMAIN@@|$DOMAIN|g" "$HERE/raymail-http.conf" > /etc/apache2/sites-available/raymail.conf
   apache2ctl configtest && systemctl reload apache2
   exit 1
 fi
