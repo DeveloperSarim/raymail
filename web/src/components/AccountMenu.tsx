@@ -8,6 +8,9 @@ import { Avatar } from "@/components/ui/Avatar";
  * a destructive action on a single stray click. It now opens a menu, and the
  * sign-out lives inside it. */
 export function AccountMenu({ username }: { username: string }) {
+  // The mail host is whatever the account lives on - deriving it from the
+  // signed-in address keeps this correct on every installation.
+  const mailHost = username.split("@")[1] ?? "";
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -79,8 +82,7 @@ export function AccountMenu({ username }: { username: string }) {
               <Server size={16} className="mt-0.5 shrink-0" />
               <span>
                 IMAP 993 &middot; SMTP 587
-                <br />
-                mail.sarimtools.com
+                {mailHost && (<><br />{mailHost}</>)}
               </span>
             </div>
           </div>
