@@ -370,9 +370,9 @@ Contributions are welcome — issues, features and documentation alike.
 
 <div align="center">
 <br>
-<a href="https://github.com/DeveloperSarim/raymail/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=DeveloperSarim/raymail" alt="Contributors">
-</a>
+<a href="https://github.com/DeveloperSarim/raymail/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/DeveloperSarim/raymail?style=for-the-badge&color=E8A33D&labelColor=0C0C0F"></a>
+<a href="https://github.com/DeveloperSarim/raymail/pulls"><img alt="Pull requests welcome" src="https://img.shields.io/badge/PRs-welcome-3FA981?style=for-the-badge&labelColor=0C0C0F"></a>
+<a href="https://github.com/DeveloperSarim/raymail/commits/main"><img alt="Last commit" src="https://img.shields.io/github/last-commit/DeveloperSarim/raymail?style=for-the-badge&color=5B9DD9&labelColor=0C0C0F"></a>
 </div>
 
 ---
