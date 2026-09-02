@@ -1,0 +1,37 @@
+name: Bug report
+description: Something is not working as documented
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      description: "`docker compose logs stalwart` or `docker compose logs web`. Redact any credentials."
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: RayMail version or commit
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: Host
+      placeholder: Ubuntu 24.04, Docker 27, Hostinger VPS

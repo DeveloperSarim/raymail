@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32"
+     fill="none" role="img" aria-label="RayMail">
+  <!-- Envelope body. Offset right to leave the ray channel open on the left. -->
+  <rect x="10" y="7" width="19" height="18" rx="2.5"
+        stroke="currentColor" stroke-width="2"/>
+  <!-- Flap, drawn as a forward-leaning chevron: reads as both seal and vector. -->
+  <path d="M11.4 8.6 L19.5 16 L27.6 8.6"
+        stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- The ray: three beams converging on the flap apex. Inherit the accent when
+       one is provided, otherwise stay monochrome. -->
+  <g stroke="var(--rm-accent, currentColor)" stroke-width="2" stroke-linecap="round">
+    <path d="M4.5 11.5 H7.5"/>
+    <path d="M1   16   H7.5"/>
+    <path d="M4.5 20.5 H7.5"/>
+  </g>
+</svg>

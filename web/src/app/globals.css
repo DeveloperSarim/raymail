@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   RayMail - light workspace
+   Structure and density follow Gmail: a grey page behind white panels, a soft
+   left rail, roomy list rows, a rounded search field, hover-revealed actions.
+   The accent stays RayMail's amber rather than Gmail's blue, so the product
+   reads as familiar without reading as a clone.
+   ========================================================================== */
+@theme {
+  --color-page:        #F6F8FC;
+  --color-panel:       #FFFFFF;
+  --color-rail:        #F6F8FC;
+
+  --color-line:        #E4E7EC;
+  --color-line-strong: #D4D8DF;
+
+  --color-ink:         #1F2328;
+  --color-ink-muted:   #5B6169;
+  --color-ink-faint:   #80868B;
+
+  --color-hover:       #F1F3F4;
+  --color-read-row:    #F4F6FA;
+
+  /* Amber ramp. `strong` is the only one used for text on white - it clears
+     4.5:1, which the mid tones do not. */
+  --color-accent:        #C9821A;
+  --color-accent-strong: #8A5A0B;
+  --color-accent-soft:   #F3DDB4;
+  --color-accent-tint:   #FDF1DC;
+  --color-accent-ring:   #E8A33D;
+
+  --color-state-queued:    #80868B;
+  --color-state-sent:      #3B72C4;
+  --color-state-delivered: #2E8B62;
+  --color-state-opened:    #C9821A;
+  --color-state-clicked:   #8E5BA8;
+  --color-state-bounced:   #C5372C;
+
+  --font-sans: "Google Sans", Roboto, ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+}
+
+:root {
+  color-scheme: light;
+  --bg: var(--color-page);
+  --panel: var(--color-panel);
+  --line: var(--color-line);
+  --text: var(--color-ink);
+  --muted: var(--color-ink-muted);
+  --faint: var(--color-ink-faint);
+  --accent: var(--color-accent);
+  --accent-strong: var(--color-accent-strong);
+}
+
+* { border-color: var(--line); }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+body { margin: 0; font-size: 14px; line-height: 1.5; }
+
+/* Reserved for genuinely technical values: telemetry counts, addresses in the
+   audit table. The mail UI itself stays in the sans face, as Gmail does. */
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+:where(button, a, input, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent-ring);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
+/* Gmail's list rows reveal their actions on hover; on touch they stay visible
+   because there is no hover to reveal them with. */
+.row-actions { opacity: 0; transition: opacity .12s ease; }
+.group:hover .row-actions, .row-actions:focus-within { opacity: 1; }
+@media (hover: none) { .row-actions { opacity: 1; } }
+
+* { scrollbar-width: thin; scrollbar-color: #C4C7C5 transparent; }
+*::-webkit-scrollbar { width: 12px; height: 12px; }
+*::-webkit-scrollbar-thumb {
+  background: #C4C7C5;
+  border: 4px solid transparent;
+  background-clip: content-box;
+  border-radius: 99px;
+}
+*::-webkit-scrollbar-thumb:hover { background: #9AA0A6; background-clip: content-box; }
+*::-webkit-scrollbar-track { background: transparent; }
+
+@keyframes rm-fade-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+.fade-up { animation: rm-fade-up .16s ease-out both; }
+
+@keyframes rm-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, #EEF1F5 25%, #F7F9FB 50%, #EEF1F5 75%);
+  background-size: 800px 100%;
+  animation: rm-shimmer 1.2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 148 32" width="148" height="32"
+     fill="none" role="img" aria-label="RayMail">
+  <rect x="10" y="7" width="19" height="18" rx="2.5" stroke="currentColor" stroke-width="2"/>
+  <path d="M11.4 8.6 L19.5 16 L27.6 8.6" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <g stroke="var(--rm-accent, currentColor)" stroke-width="2" stroke-linecap="round">
+    <path d="M4.5 11.5 H7.5"/><path d="M1 16 H7.5"/><path d="M4.5 20.5 H7.5"/>
+  </g>
+  <!-- Wordmark: weight contrast carries the split, not a colour change, so the
+       lockup survives single-ink printing and monochrome favicons. -->
+  <text x="39" y="21.5" font-family="ui-sans-serif,-apple-system,'Segoe UI',Inter,system-ui,sans-serif"
+        font-size="17" letter-spacing="-0.4" fill="currentColor">
+    <tspan font-weight="600">Ray</tspan><tspan font-weight="380">Mail</tspan>
+  </text>
+</svg>
