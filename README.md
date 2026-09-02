@@ -26,7 +26,7 @@
 
 <br><br>
 
-**[Quick start](#-quick-start)** · **[Features](#-features)** · **[Architecture](#-architecture)** · **[Configuration](#%EF%B8%8F-configuration)** · **[Deliverability](#-deliverability)** · **[Contributing](#-contributing)**
+**[Quick start](#-quick-start)** · **[Features](#-features)** · **[Architecture](#-architecture)** · **[Configuration](#%EF%B8%8F-configuration)** · **[Deliverability](#-deliverability)** · **[Contributing](#-contributing)** · **[Discussions](https://github.com/DeveloperSarim/raymail/discussions)**
 
 </div>
 
@@ -305,6 +305,10 @@ Self-hosted mail lands in spam for a small number of fixable reasons. In order o
 3. **Blocked outbound `:25`** — many providers block it. RayMail then relays through a smarthost on `:587`; inbound `:25` is unaffected.
 4. **DMARC alignment** — if you relay, your Return-Path is usually a subdomain. Use **relaxed** alignment (`adkim=r; aspf=r`) or every relayed message fails.
 5. **A brand-new domain has no reputation.** Start with `p=none`, send slowly, and tighten to `p=quarantine` once reports come back clean.
+
+> **Two questions come up more than any other**, both answered in detail in Discussions:
+> [mail still goes to spam with DKIM/SPF/DMARC set](https://github.com/DeveloperSarim/raymail/discussions/3) ·
+> [first boot fails with "Permission denied"](https://github.com/DeveloperSarim/raymail/discussions/4)
 
 <details>
 <summary><b>Troubleshooting matrix</b></summary>
