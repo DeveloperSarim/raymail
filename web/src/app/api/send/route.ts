@@ -23,7 +23,16 @@ export async function POST(req: Request) {
   if (!body.to?.length) return NextResponse.json({ error: "At least one recipient is required" }, { status: 400 });
   if (!body.subject?.trim()) return NextResponse.json({ error: "Subject is required" }, { status: 400 });
 
-  const appUrl = process.env.APP_URL ?? "https://mail.sarimtools.com";
+  // Tracking pixels and click links are absolute URLs baked into outgoing
+  // mail. A wrong host here silently breaks every open and click, so refuse
+  // to send rather than ship a bad link.
+  const appUrl = process.env.APP_URL;
+  if (!appUrl) {
+    return NextResponse.json(
+      { error: "APP_URL is not configured - tracking links would be unreachable" },
+      { status: 500 },
+    );
+  }
   const trackedId = newTrackingId();
   const trackOpens = body.trackOpens ?? true;
   const trackClicks = body.trackClicks ?? true;
