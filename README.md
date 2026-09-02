@@ -1,9 +1,9 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/logo-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset=".github/assets/logo-light.svg">
-  <img alt="RayMail" src=".github/assets/logo-light.svg" width="240">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/DeveloperSarim/raymail/main/.github/assets/logo-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/DeveloperSarim/raymail/main/.github/assets/logo-light.svg">
+  <img alt="RayMail logo" src="https://raw.githubusercontent.com/DeveloperSarim/raymail/main/.github/assets/logo-light.svg" width="260">
 </picture>
 
 ### Self-hosted mail server, webmail client and delivery telemetry — in one `docker compose up`
@@ -22,7 +22,7 @@
 
 <br>
 
-<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=19&pause=1200&color=E8A33D&center=true&vCenter=true&width=680&lines=Own+your+mail+server+end+to+end.;SMTP+%C2%B7+IMAP+%C2%B7+JMAP+%C2%B7+DKIM+%C2%B7+SPF+%C2%B7+DMARC;Know+the+moment+your+email+is+opened.;AI+drafting%2C+summaries+and+inbox+overview." alt="Own your mail server end to end">
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=20&pause=1200&color=E8A33D&center=true&vCenter=true&width=820&height=45&lines=Own+your+mail+server+end+to+end.;SMTP+%C2%B7+IMAP+%C2%B7+JMAP+%C2%B7+DKIM+%C2%B7+SPF+%C2%B7+DMARC;Know+the+moment+your+email+is+opened.;AI+drafting%2C+summaries+and+inbox+overview." alt="Own your mail server end to end">
 
 <br><br>
 
@@ -45,7 +45,7 @@ Desktop and mobile clients (**Outlook, Apple Mail, Thunderbird, K-9, Gmail app**
 
 <div align="center">
 
-<img src=".github/assets/screenshot-inbox.png" alt="RayMail webmail inbox — Gmail-style three-pane workspace with search, folder rail and reading pane" width="100%">
+<img src="https://raw.githubusercontent.com/DeveloperSarim/raymail/main/.github/assets/screenshot-inbox.png" alt="RayMail webmail inbox — Gmail-style three-pane workspace with search, folder rail and reading pane" width="100%">
 
 </div>
 
@@ -169,7 +169,7 @@ sudo ./deploy/setup-tls.sh
 </table>
 
 <div align="center">
-<img src=".github/assets/screenshot-server.png" alt="RayMail admin console — mailbox management, DKIM records, listeners and outbound routes" width="100%">
+<img src="https://raw.githubusercontent.com/DeveloperSarim/raymail/main/.github/assets/screenshot-server.png" alt="RayMail admin console — mailbox management, DKIM records, listeners and outbound routes" width="100%">
 <sub><i>The built-in mail server console — create mailboxes, rotate passwords, copy DNS records, inspect listeners and the outbound queue.</i></sub>
 </div>
 
