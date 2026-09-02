@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Print the exact DNS records this installation needs, using its live DKIM keys."""
-import subprocess
+import subprocess, sys
 from _stalwart import load_env, client
 
 env = load_env()
-domain = env.get("MAIL_DOMAIN", "mail.sarimtools.com")
+domain = env.get("MAIL_DOMAIN") or sys.exit("Set MAIL_DOMAIN in .env first.")
 host = env.get("MAIL_HOSTNAME", domain)
 sub = domain.split(".")[0]
 

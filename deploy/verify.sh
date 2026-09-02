@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # Read-only verification of the RayMail deployment. Changes nothing.
-DOMAIN=mail.sarimtools.com
+HERE="$(cd "$(dirname "$0")" && pwd)"
+DOMAIN="$(grep -E '^MAIL_HOSTNAME=' "$HERE/../.env" 2>/dev/null | cut -d= -f2- | tr -d '\"[:space:]')"
+DOMAIN="${DOMAIN:-localhost}"
 b(){ printf '\n\033[1m== %s\033[0m\n' "$*"; }
 
 b "containers"
-docker compose -f /root/raymail/docker-compose.yml ps 2>/dev/null
+docker compose -f "$HERE/../docker-compose.yml" ps 2>/dev/null
 
 b "listening sockets owned by RayMail"
 ss -tlpnH | grep -E ':(25|465|587|993|3880|3881)\b' || echo "none bound yet"

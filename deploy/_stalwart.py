@@ -4,7 +4,11 @@ import base64, json, os, urllib.request
 ENDPOINT = os.environ.get("STALWART_ADMIN_URL", "http://127.0.0.1:3881/jmap/")
 
 
-def load_env(path="/root/raymail/.env"):
+def load_env(path=None):
+    # Resolve relative to this file so the scripts work from any checkout,
+    # not only from /root/raymail.
+    if path is None:
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".env")
     env = {}
     with open(path) as fh:
         for line in fh:
