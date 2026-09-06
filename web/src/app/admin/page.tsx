@@ -4,12 +4,13 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, HardDrive, Search, Sparkles, Activity, Send, Download,
-  FileText, Image as ImageIcon, RefreshCw, Server,
+  FileText, Image as ImageIcon, RefreshCw, Server, Webhook,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { StageBadge } from "@/components/ui/StageBadge";
 import { MetricTile, Funnel, Engagement } from "@/components/admin/Charts";
 import { ServerConsole } from "@/components/admin/ServerConsole";
+import { WebhooksPanel } from "@/components/admin/WebhooksPanel";
 import { AttachmentPreview, isPreviewable } from "@/components/AttachmentPreview";
 import { useAiStatus } from "@/hooks/useAi";
 import { bytes, relativeDate } from "@/lib/format";
@@ -36,12 +37,13 @@ async function get<T>(url: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-type Tab = "overview" | "delivery" | "vault" | "server";
+type Tab = "overview" | "delivery" | "vault" | "webhooks" | "server";
 
 const TABS: { id: Tab; label: string; icon: typeof Activity }[] = [
   { id: "overview", label: "Overview", icon: Activity },
   { id: "delivery", label: "Delivery", icon: Send },
   { id: "vault", label: "Vault", icon: HardDrive },
+  { id: "webhooks", label: "Webhooks", icon: Webhook },
   { id: "server", label: "Mail server", icon: Server },
 ];
 
@@ -339,6 +341,8 @@ export default function Admin() {
             </div>
           </section>
         )}
+
+        {tab === "webhooks" && <WebhooksPanel />}
 
         {tab === "server" && <ServerConsole />}
       </div>

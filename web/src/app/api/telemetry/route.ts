@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/guard";
 import { db, advanceStage } from "@/lib/db";
 import { getSubmissionStatus } from "@/services/jmap";
+import { enqueue } from "@/lib/webhooks";
 import type { TelemetrySummary, TrackedMessage } from "@/types/telemetry";
 
 export const dynamic = "force-dynamic";
@@ -36,6 +37,7 @@ export async function GET(req: Request) {
           d.prepare(
             `INSERT INTO telemetry_event (tracked_id, type, occurred_at) VALUES (?, 'delivered', ?)`,
           ).run(p.id, now);
+          enqueue("message.delivered", { trackedId: p.id, occurredAt: now });
         } else if (st === "no") {
           d.prepare(
             "UPDATE tracked_message SET stage='bounced', bounce_reason=?, last_event_at=? WHERE id=?",
@@ -43,6 +45,10 @@ export async function GET(req: Request) {
           d.prepare(
             `INSERT INTO telemetry_event (tracked_id, type, occurred_at) VALUES (?, 'bounced', ?)`,
           ).run(p.id, now);
+          enqueue("message.bounced", {
+            trackedId: p.id, occurredAt: now,
+            reason: "Rejected by the receiving server",
+          });
         }
       }
     }

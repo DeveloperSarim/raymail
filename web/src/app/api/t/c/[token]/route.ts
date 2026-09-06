@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db, advanceStage } from "@/lib/db";
 import { readClickToken } from "@/lib/telemetry";
 import type { DeliveryStage } from "@/types/telemetry";
+import { enqueue } from "@/lib/webhooks";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +39,11 @@ export async function GET(
             SET click_count = click_count + 1, stage = ?, last_event_at = ?
           WHERE id = ?`,
       ).run(advanceStage(row.stage as DeliveryStage, "clicked"), now, parsed.id);
+
+      enqueue("message.clicked", {
+        trackedId: parsed.id, occurredAt: now, url: parsed.url,
+        ip, userAgent: req.headers.get("user-agent"),
+      });
     }
   } catch {
     // Never strand the recipient because telemetry failed.

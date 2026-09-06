@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db, advanceStage } from "@/lib/db";
 import { readOpenToken } from "@/lib/telemetry";
 import { PIXEL_GIF } from "@/lib/outgoing";
+import { enqueue } from "@/lib/webhooks";
 import type { DeliveryStage } from "@/types/telemetry";
 
 export const dynamic = "force-dynamic";
@@ -40,6 +41,13 @@ export async function GET(
                   last_event_at = ?
             WHERE id = ?`,
         ).run(advanceStage(row.stage as DeliveryStage, "opened"), now, now, trackedId);
+
+        // Queued, never sent inline: the pixel has to return in milliseconds
+        // regardless of how slow the receiver is.
+        enqueue("message.opened", {
+          trackedId, occurredAt: now, ip, userAgent: ua,
+          openCount: row.open_count + 1,
+        });
       }
     } catch {
       // Telemetry is best-effort; never fail the image response.
