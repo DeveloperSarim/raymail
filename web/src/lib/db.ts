@@ -49,6 +49,37 @@ CREATE INDEX IF NOT EXISTS idx_att_type ON attachment_index(type);
 
 -- Model output is expensive enough to be worth caching, and keyed by task plus
 -- a content hash an unchanged message is never paid for twice.
+-- Outbound webhooks. Telemetry is only useful to a business once it can leave
+-- the box and land in their CRM, Slack or warehouse.
+CREATE TABLE IF NOT EXISTS webhook_endpoint (
+  id          TEXT PRIMARY KEY,
+  url         TEXT NOT NULL,
+  secret      TEXT NOT NULL,
+  events      TEXT NOT NULL,           -- comma-separated, or '*'
+  description TEXT,
+  enabled     INTEGER NOT NULL DEFAULT 1,
+  created_at  TEXT NOT NULL,
+  last_used_at TEXT
+);
+
+-- One row per (endpoint, event). Kept after delivery so an operator can see
+-- what fired and why something failed, rather than guessing from logs.
+CREATE TABLE IF NOT EXISTS webhook_delivery (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  endpoint_id   TEXT NOT NULL,
+  event_type    TEXT NOT NULL,
+  payload       TEXT NOT NULL,
+  status        TEXT NOT NULL DEFAULT 'pending',   -- pending|delivered|failed
+  attempts      INTEGER NOT NULL DEFAULT 0,
+  response_code INTEGER,
+  last_error    TEXT,
+  next_attempt_at TEXT,
+  created_at    TEXT NOT NULL,
+  delivered_at  TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_wh_pending ON webhook_delivery(status, next_attempt_at);
+CREATE INDEX IF NOT EXISTS idx_wh_endpoint ON webhook_delivery(endpoint_id, created_at);
+
 CREATE TABLE IF NOT EXISTS ai_cache (
   key        TEXT PRIMARY KEY,
   kind       TEXT NOT NULL,

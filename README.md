@@ -10,7 +10,7 @@
 
 <a href="https://github.com/DeveloperSarim/raymail/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/DeveloperSarim/raymail/ci.yml?branch=main&style=for-the-badge&label=build&color=3FA981&labelColor=0C0C0F"></a>
 <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-E8A33D?style=for-the-badge&labelColor=0C0C0F"></a>
-<a href="https://github.com/DeveloperSarim/raymail/releases"><img alt="Version" src="https://img.shields.io/badge/version-1.0.0-F4F4F6?style=for-the-badge&labelColor=0C0C0F"></a>
+<a href="https://github.com/DeveloperSarim/raymail/releases"><img alt="Version" src="https://img.shields.io/badge/version-1.1.0-F4F4F6?style=for-the-badge&labelColor=0C0C0F"></a>
 <a href="https://stalw.art"><img alt="Stalwart" src="https://img.shields.io/badge/stalwart-v0.16-5B9DD9?style=for-the-badge&labelColor=0C0C0F"></a>
 <a href="https://nextjs.org"><img alt="Next.js" src="https://img.shields.io/badge/next.js-15-B4B4C0?style=for-the-badge&labelColor=0C0C0F"></a>
 
@@ -26,7 +26,7 @@
 
 <br><br>
 
-**[Quick start](#-quick-start)** · **[Features](#-features)** · **[Architecture](#-architecture)** · **[Configuration](#%EF%B8%8F-configuration)** · **[Deliverability](#-deliverability)** · **[Contributing](#-contributing)** · **[Discussions](https://github.com/DeveloperSarim/raymail/discussions)**
+**[Quick start](#-quick-start)** · **[Features](#-features)** · **[Webhooks](#-webhooks)** · **[Architecture](#-architecture)** · **[Configuration](#%EF%B8%8F-configuration)** · **[Deliverability](#-deliverability)** · **[Contributing](#-contributing)** · **[Discussions](https://github.com/DeveloperSarim/raymail/discussions)**
 
 </div>
 
@@ -135,6 +135,7 @@ sudo ./deploy/setup-tls.sh
 - Open/click rates, bounce tracking
 - Per-message audit trail with IP and user agent
 - Document vault indexing every attachment
+- **Signed outbound webhooks** with retries
 - All of it in local SQLite
 
 </td>
@@ -172,6 +173,89 @@ sudo ./deploy/setup-tls.sh
 <img src="https://raw.githubusercontent.com/DeveloperSarim/raymail/main/.github/assets/screenshot-server.png" alt="RayMail admin console — mailbox management, DKIM records, listeners and outbound routes" width="100%">
 <sub><i>The built-in mail server console — create mailboxes, rotate passwords, copy DNS records, inspect listeners and the outbound queue.</i></sub>
 </div>
+
+---
+
+## 🔔 Webhooks
+
+Telemetry that cannot leave the box is only useful to someone staring at a
+dashboard. RayMail pushes every delivery event to your own systems — a bounce
+suppresses a contact in your CRM, a click notifies Slack, a delivery closes the
+loop in your warehouse.
+
+| Event | Fires when |
+|---|---|
+| `message.sent` | Accepted by the MTA for delivery |
+| `message.delivered` | The receiving server accepted it |
+| `message.opened` | The tracking pixel was loaded |
+| `message.clicked` | A tracked link was followed |
+| `message.bounced` | Permanently rejected |
+
+Add an endpoint under **Admin → Webhooks**, pick your events, and store the
+signing secret it shows you once.
+
+<details>
+<summary><b>Payload and signature verification</b></summary>
+
+Every request carries a Stripe-style signature header:
+
+```
+X-RayMail-Event: message.opened
+X-RayMail-Signature: t=1699999999,v1=6f3a...
+Content-Type: application/json
+```
+
+```json
+{
+  "id": "evt_9f2c1a7b4e6d8c0a3b5f",
+  "type": "message.opened",
+  "createdAt": "2026-09-03T09:14:22.108Z",
+  "data": {
+    "trackedId": "df4acac7ffc44ab8b16e",
+    "occurredAt": "2026-09-03T09:14:22.108Z",
+    "ip": "182.189.95.30",
+    "userAgent": "Mozilla/5.0 ...",
+    "openCount": 2
+  }
+}
+```
+
+Verify before trusting anything in it. The timestamp is inside the signed
+material, so a captured request cannot be replayed later:
+
+```js
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+function verify(secret, rawBody, header, toleranceSeconds = 300) {
+  const parts = Object.fromEntries(header.split(",").map((p) => p.split("=", 2)));
+  const t = Number(parts.t);
+  if (!t || !parts.v1) return false;
+  if (Math.abs(Date.now() / 1000 - t) > toleranceSeconds) return false;
+
+  const expected = createHmac("sha256", secret).update(`${t}.${rawBody}`).digest("hex");
+  const a = Buffer.from(expected), b = Buffer.from(parts.v1);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+```
+
+Use the **raw** request body, not a re-serialised object — key order changes the hash.
+
+**Delivery guarantees.** Events are queued to SQLite, never sent inline, so a
+slow receiver can never delay a tracking pixel. Failures retry five times with
+backoff (1m, 5m, 25m, 2h, 10h) before being marked failed, and every attempt is
+visible in the admin panel with its response code.
+
+Drain on a schedule if you want sub-minute delivery:
+
+```
+* * * * * curl -s -X POST http://127.0.0.1:3880/api/webhooks/drain
+```
+
+**A note on the URL.** Endpoints are resolved before being accepted and refused
+if they point at a private or loopback address — otherwise a signed-in user
+could turn the server into a proxy into your internal network.
+
+</details>
 
 ---
 
@@ -357,17 +441,29 @@ Contributions are welcome — issues, features and documentation alike.
 
 - Server-side JMAP search (the list currently filters client-side)
 - Bounce ingestion from the Stalwart queue into the telemetry pipeline
+- Webhook event replay from the admin panel
 - Multi-account support in the webmail
 - A nginx and a Caddy variant of `deploy/setup-tls.sh`
 - Thread grouping in the message list
 
 </details>
 
+### Contributors
+
 <div align="center">
-<br>
+
+<a href="https://github.com/DeveloperSarim/raymail/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=DeveloperSarim/raymail" alt="Contributors to RayMail" />
+</a>
+
+<br><br>
+
 <a href="https://github.com/DeveloperSarim/raymail/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/DeveloperSarim/raymail?style=for-the-badge&color=E8A33D&labelColor=0C0C0F"></a>
 <a href="https://github.com/DeveloperSarim/raymail/pulls"><img alt="Pull requests welcome" src="https://img.shields.io/badge/PRs-welcome-3FA981?style=for-the-badge&labelColor=0C0C0F"></a>
 <a href="https://github.com/DeveloperSarim/raymail/commits/main"><img alt="Last commit" src="https://img.shields.io/github/last-commit/DeveloperSarim/raymail?style=for-the-badge&color=5B9DD9&labelColor=0C0C0F"></a>
+
+<sub>Your avatar goes here — see <a href="CONTRIBUTING.md">CONTRIBUTING.md</a>.</sub>
+
 </div>
 
 ---

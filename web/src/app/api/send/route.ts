@@ -4,6 +4,7 @@ import { listMailboxes, sendEmail } from "@/services/jmap";
 import { prepareOutgoingHtml } from "@/lib/outgoing";
 import { newTrackingId } from "@/lib/telemetry";
 import { db } from "@/lib/db";
+import { enqueue } from "@/lib/webhooks";
 import type { EmailAddress } from "@/types/mail";
 
 export const dynamic = "force-dynamic";
@@ -71,6 +72,14 @@ export async function POST(req: Request) {
     `UPDATE tracked_message
         SET stage='sent', message_id=?, submission_id=?, last_event_at=? WHERE id=?`,
   ).run(result.emailId, result.submissionId, new Date().toISOString(), trackedId);
+
+  enqueue("message.sent", {
+    trackedId,
+    messageId: result.emailId,
+    subject: body.subject,
+    recipients: recipients.map((r) => r.email),
+    sentAt: now,
+  });
 
   return NextResponse.json({ ok: true, trackedId, emailId: result.emailId });
 }
