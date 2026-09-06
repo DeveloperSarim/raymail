@@ -68,7 +68,8 @@ export function createEndpoint(
   db().prepare(
     `INSERT INTO webhook_endpoint (id, url, secret, events, description, enabled, created_at)
      VALUES (?, ?, ?, ?, ?, 1, ?)`,
-  ).run(id, url, events.length ? events.join(",") : "*", description, new Date().toISOString());
+  ).run(id, url, secret, events.length ? events.join(",") : "*", description,
+        new Date().toISOString());
   return listEndpoints().find((e) => e.id === id)!;
 }
 
